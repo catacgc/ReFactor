@@ -3,15 +3,19 @@ import re
 
 class Finder(object):
     '''
-    This class scans files from given _path and filters them by extension, 
+    This class scans files from given path and filters them by extension, 
     or include/exclude regular expressions
     
     @author: Catalin Costache <catalin.g.costache@gmail.com>
     
     Example:
-    >> _finder = Finder('/dome/_path').extension('js', 'html').exclude('\.svn|hg|git')
-    >> print len(_finder)
-    >> for filename in _finder:
+    >> finder = Finder('/some/path') \
+    >>        .extension('js', 'html') \
+    >>        .exclude(r'\.svn|hg|git') \
+    >>        .include(r'/app|library') \
+    >> print len(finder)
+    >> print list(finder)
+    >> for filename in finder:
     >>     print filemame
     
     '''
@@ -71,7 +75,7 @@ class Finder(object):
         return False
     
     def __len__(self):
-        return len([1 for file in self])
+        return len(list(self))
     
     def __iter__(self):
         for root, subdirs, files in os.walk(self._path):
@@ -135,6 +139,6 @@ class ContentFilter(object):
                 yield filename
                 
     def __len__(self):
-        return len([1 for filename in self])
+        return len(list(self))
 
 
