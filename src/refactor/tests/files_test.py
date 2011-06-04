@@ -4,10 +4,9 @@ Created on May 27, 2011
 @author: catalin
 '''
 import unittest
-from refactor.files import Finder
+from refactor.files import Finder, ContentFilter
 
-
-class FilesTest(unittest.TestCase):
+class FinderTest(unittest.TestCase):
     def test_finder(self):
         finder = Finder('./filetest')
         self.assertEqual(3, len(finder), len(finder))
@@ -30,7 +29,24 @@ class FilesTest(unittest.TestCase):
     
     def test_returned_path(self):
         finder = Finder('./filetest').extension('php')
-        print finder
+        self.assertEqual(list(finder), ['./filetest/file1.php'])
+
+class ContentFilterTest(unittest.TestCase): 
+    def test_only(self):
+        filter = ContentFilter(Finder('./filetest'))
+        self.assertEqual(3, len(filter))
+        
+        filter.only(r'namespace Mach\\')
+        self.assertEqual(1, len(filter))
+        self.assertEqual(list(filter), ['./filetest/file1.php'])
+        
+    def test_without(self):
+        filter = ContentFilter(Finder('./filetest'))
+        filter.without(r'namespace Mach\\')
+        self.assertEqual(2, len(filter))
+        
+        
         
 if __name__ == "__main__":
     unittest.main()
+    
