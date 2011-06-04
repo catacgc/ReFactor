@@ -75,7 +75,7 @@ class Finder(object):
         return False
     
     def __len__(self):
-        return len(list(self))
+        return len([1 for file in self])
     
     def __iter__(self):
         for root, subdirs, files in os.walk(self._path):
@@ -139,6 +139,6 @@ class ContentFilter(object):
                 yield filename
                 
     def __len__(self):
-        return len(list(self))
+        return len([1 for filename in self])
 
 
