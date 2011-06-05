@@ -4,8 +4,7 @@ Created on May 27, 2011
 @author: catalin
 '''
 import unittest
-from refactor.files import Finder
-from refactor.files.filter import ContentFilter
+from refactor import *
 
 class FinderTest(unittest.TestCase):
     def test_finder(self):
