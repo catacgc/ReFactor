@@ -1,6 +1,29 @@
 import os
 import re
+from filter.base import *
 
+class File(object):
+    
+    def __init__(self, path):
+        self.path = path
+        self.content = None
+        
+    def get_path(self):
+        return self.path
+        
+    def get_content(self):
+        if self.content != None:
+            return self.content
+        
+        f = open(self.path)
+        self.content = f.read()
+        f.close()
+        
+        return self.content
+    
+    def __repr__(self):
+        return 'File<%s>' % self.path
+    
 class Finder(object):
     '''
     This class scans files from given path and filters them by extension, 
@@ -29,16 +52,20 @@ class Finder(object):
         self._finished = False
         self._excluded = None
         self._included = None
-        self._extensions = None
+        self._filters = []
     
     def extension(self, *args):
         '''
         Filter files by the given extensions 
         @return: Finder
         '''
-        self._extensions = args
+        self.filter(ExtensionFilter(args))
         return self
-        
+    
+    def filter(self, filter):
+        self._filters.append(filter)
+        return self
+    
     def exclude(self, *args):
         self._excluded = [re.compile(arg) for arg in args]
         return self
@@ -48,15 +75,15 @@ class Finder(object):
         return self
     
     def is_valid(self, path):
-        return  self._match_extension(path) \
-                and not self._is_excluded(path) \
+        return  not self._is_excluded(path) \
                 and self._is_included(path)
     
-    def _match_extension(self, path):
-        if not self._extensions:
-            return True
-        extension = os.path.splitext(path)[1]
-        return extension[1:] in self._extensions
+    def _match_filters(self, fileobject):
+        for filter in self._filters:
+            if not filter.check(fileobject):
+                return False
+            
+        return True
         
     def _is_excluded(self, path):
         if not self._excluded:
@@ -82,12 +109,14 @@ class Finder(object):
             for filename in files:
                 path = root + '/' + filename
                 
+                
                 if self.is_valid(path):
-                    yield path
+                    f = File(path)
+                    if self._match_filters(f):
+                        yield f
                     
         self._finished = True
     
     def __repr__(self):
-        return "Finder(path=%s,extensions=%r,include=%r,exclude=%r)" % \
-            (self._path, ",".join(self._extensions), self._included, self._excluded)
+        return "Finder(path=%s)" % self._path
     
