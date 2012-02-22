@@ -1,1 +1,1 @@
-from content import ContentFilter
+from base import *
